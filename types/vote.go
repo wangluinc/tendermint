@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -100,7 +101,7 @@ func (vote *Vote) String() string {
 }
 
 func (vote *Vote) Verify(chainID string, pubKey crypto.PubKey) error {
-	if !bytes.Equal(pubKey.Address(), v.ValidatorAddress) {
+	if !bytes.Equal(pubKey.Address(), vote.ValidatorAddress) {
 		return ErrVoteInvalidValidatorAddress
 	}
 
