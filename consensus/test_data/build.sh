@@ -42,12 +42,12 @@ echo "==> Copying ${DIR_TO_COPY} to ${TMHOME} directory..."
 cp -r "$DIR_TO_COPY"/* "$TMHOME"
 
 # preserve original genesis file because later it will be modified (see small_block2)
-cp "$TMHOME/genesis.json" "$TMHOME/genesis.json.bak"
+cp "$TMHOME/config/genesis.json" "$TMHOME/config/genesis.json.bak"
 
 function reset(){
 	echo "==> Resetting tendermint..."
 	tendermint unsafe_reset_all
-	cp "$TMHOME/genesis.json.bak" "$TMHOME/genesis.json"
+	cp "$TMHOME/config/genesis.json.bak" "$TMHOME/config/genesis.json"
 }
 
 reset
@@ -104,8 +104,8 @@ function small_block1(){
 
 # block part size = 512
 function small_block2(){
-	cat "$TMHOME/genesis.json" | jq '. + {consensus_params: {block_size_params: {max_bytes: 22020096}, block_gossip_params: {block_part_size_bytes: 512}}}' > "$TMHOME/new_genesis.json"
-	mv "$TMHOME/new_genesis.json" "$TMHOME/genesis.json"
+	cat "$TMHOME/config/genesis.json" | jq '. + {consensus_params: {block_size_params: {max_bytes: 22020096}, block_gossip_params: {block_part_size_bytes: 512}}}' > "$TMHOME/config/new_genesis.json"
+	mv "$TMHOME/config/new_genesis.json" "$TMHOME/config/genesis.json"
 	bash scripts/txs/random.sh 1000 36657 &> /dev/null &
 	PID=$!
 	echo "==> Starting tendermint..."
