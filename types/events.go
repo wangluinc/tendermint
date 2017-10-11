@@ -114,7 +114,7 @@ type EventDataNewBlockHeader struct {
 
 // All txs fire EventDataTx
 type EventDataTx struct {
-	Height int           `json:"height"`
+	Height uint64        `json:"height"`
 	Tx     Tx            `json:"tx"`
 	Data   data.Bytes    `json:"data"`
 	Log    string        `json:"log"`

@@ -23,7 +23,7 @@ var (
 	abciResponsesKey = []byte("abciResponsesKey")
 )
 
-func calcValidatorsKey(height int) []byte {
+func calcValidatorsKey(height uint64) []byte {
 	return []byte(cmn.Fmt("validatorsKey:%v", height))
 }
 
@@ -45,7 +45,7 @@ type State struct {
 	// These fields are updated by SetBlockAndValidators.
 	// LastBlockHeight=0 at genesis (ie. block(H=0) does not exist)
 	// LastValidators is used to validate block.LastCommit.
-	LastBlockHeight int
+	LastBlockHeight uint64
 	LastBlockID     types.BlockID
 	LastBlockTime   time.Time
 	Validators      *types.ValidatorSet

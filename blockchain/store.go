@@ -7,10 +7,10 @@ import (
 	"io"
 	"sync"
 
-	. "github.com/tendermint/tmlibs/common"
-	dbm "github.com/tendermint/tmlibs/db"
 	"github.com/tendermint/go-wire"
 	"github.com/tendermint/tendermint/types"
+	. "github.com/tendermint/tmlibs/common"
+	dbm "github.com/tendermint/tmlibs/db"
 )
 
 /*
@@ -31,7 +31,7 @@ type BlockStore struct {
 	db dbm.DB
 
 	mtx    sync.RWMutex
-	height int
+	height uint64
 }
 
 func NewBlockStore(db dbm.DB) *BlockStore {
@@ -43,7 +43,7 @@ func NewBlockStore(db dbm.DB) *BlockStore {
 }
 
 // Height() returns the last known contiguous block height.
-func (bs *BlockStore) Height() int {
+func (bs *BlockStore) Height() uint64 {
 	bs.mtx.RLock()
 	defer bs.mtx.RUnlock()
 	return bs.height
