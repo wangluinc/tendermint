@@ -60,7 +60,7 @@ type State struct {
 	// the change only applies to the next block.
 	// So, if s.LastBlockHeight causes a valset change,
 	// we set s.LastHeightValidatorsChanged = s.LastBlockHeight + 1
-	LastHeightValidatorsChanged int
+	LastHeightValidatorsChanged uint64
 
 	logger log.Logger
 }
@@ -159,7 +159,7 @@ func (s *State) LoadABCIResponses() *ABCIResponses {
 }
 
 // LoadValidators loads the ValidatorSet for a given height.
-func (s *State) LoadValidators(height int) (*types.ValidatorSet, error) {
+func (s *State) LoadValidators(height uint64) (*types.ValidatorSet, error) {
 	v := s.loadValidators(height)
 	if v == nil {
 		return nil, ErrNoValSetForHeight{height}
@@ -176,7 +176,7 @@ func (s *State) LoadValidators(height int) (*types.ValidatorSet, error) {
 	return v.ValidatorSet, nil
 }
 
-func (s *State) loadValidators(height int) *ValidatorsInfo {
+func (s *State) loadValidators(height uint64) *ValidatorsInfo {
 	buf := s.db.Get(calcValidatorsKey(height))
 	if len(buf) == 0 {
 		return nil
@@ -249,7 +249,7 @@ func (s *State) SetBlockAndValidators(header *types.Header, blockPartsHeader typ
 }
 
 func (s *State) setBlockAndValidators(
-	height int, blockID types.BlockID, blockTime time.Time,
+	height uint64, blockID types.BlockID, blockTime time.Time,
 	prevValSet, nextValSet *types.ValidatorSet) {
 
 	s.LastBlockHeight = height
@@ -277,7 +277,7 @@ func (s *State) Params() types.ConsensusParams {
 // ABCIResponses retains the responses of the various ABCI calls during block processing.
 // It is persisted to disk before calling Commit.
 type ABCIResponses struct {
-	Height int
+	Height uint64
 
 	DeliverTx []*abci.ResponseDeliverTx
 	EndBlock  abci.ResponseEndBlock
@@ -304,7 +304,7 @@ func (a *ABCIResponses) Bytes() []byte {
 // ValidatorsInfo represents the latest validator set, or the last time it changed
 type ValidatorsInfo struct {
 	ValidatorSet      *types.ValidatorSet
-	LastHeightChanged int
+	LastHeightChanged uint64
 }
 
 // Bytes serializes the ValidatorsInfo using go-wire

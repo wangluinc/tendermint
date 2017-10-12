@@ -631,7 +631,7 @@ func (conR *ConsensusReactor) gossipVotesForHeight(logger log.Logger, rs *cstype
 		}
 	}
 	// If there are POLPrevotes to send...
-	if prs.ProposalPOLRound != -1 {
+	if int(prs.ProposalPOLRound) != -1 {
 		if polPrevotes := rs.Votes.Prevotes(prs.ProposalPOLRound); polPrevotes != nil {
 			if ps.PickSendVote(polPrevotes) {
 				logger.Debug("Picked rs.Prevotes(prs.ProposalPOLRound) to send",
@@ -799,7 +799,7 @@ func (ps *PeerState) GetRoundState() *cstypes.PeerRoundState {
 
 // GetHeight returns an atomic snapshot of the PeerRoundState's height
 // used by the mempool to ensure peers are caught up before broadcasting new txs
-func (ps *PeerState) GetHeight() int {
+func (ps *PeerState) GetHeight() uint64 {
 	ps.mtx.Lock()
 	defer ps.mtx.Unlock()
 	return ps.PeerRoundState.Height
@@ -825,7 +825,7 @@ func (ps *PeerState) SetHasProposal(proposal *types.Proposal) {
 }
 
 // SetHasProposalBlockPart sets the given block part index as known for the peer.
-func (ps *PeerState) SetHasProposalBlockPart(height int, round int, index int) {
+func (ps *PeerState) SetHasProposalBlockPart(height uint64, round int, index int) {
 	ps.mtx.Lock()
 	defer ps.mtx.Unlock()
 
@@ -876,7 +876,7 @@ func (ps *PeerState) PickVoteToSend(votes types.VoteSetReader) (vote *types.Vote
 	return nil, false
 }
 
-func (ps *PeerState) getVoteBitArray(height, round int, type_ byte) *cmn.BitArray {
+func (ps *PeerState) getVoteBitArray(height uint64, round int, type_ byte) *cmn.BitArray {
 	if !types.IsVoteTypeValid(type_) {
 		return nil
 	}
@@ -923,7 +923,7 @@ func (ps *PeerState) getVoteBitArray(height, round int, type_ byte) *cmn.BitArra
 }
 
 // 'round': A round for which we have a +2/3 commit.
-func (ps *PeerState) ensureCatchupCommitRound(height, round int, numValidators int) {
+func (ps *PeerState) ensureCatchupCommitRound(height uint64, round int, numValidators int) {
 	if ps.Height != height {
 		return
 	}
@@ -949,13 +949,13 @@ func (ps *PeerState) ensureCatchupCommitRound(height, round int, numValidators i
 // what votes this peer has received.
 // NOTE: It's important to make sure that numValidators actually matches
 // what the node sees as the number of validators for height.
-func (ps *PeerState) EnsureVoteBitArrays(height int, numValidators int) {
+func (ps *PeerState) EnsureVoteBitArrays(height uint64, numValidators int) {
 	ps.mtx.Lock()
 	defer ps.mtx.Unlock()
 	ps.ensureVoteBitArrays(height, numValidators)
 }
 
-func (ps *PeerState) ensureVoteBitArrays(height int, numValidators int) {
+func (ps *PeerState) ensureVoteBitArrays(height uint64, numValidators int) {
 	if ps.Height == height {
 		if ps.Prevotes == nil {
 			ps.Prevotes = cmn.NewBitArray(numValidators)
@@ -984,7 +984,7 @@ func (ps *PeerState) SetHasVote(vote *types.Vote) {
 	ps.setHasVote(vote.Height, vote.Round, vote.Type, vote.ValidatorIndex)
 }
 
-func (ps *PeerState) setHasVote(height int, round int, type_ byte, index int) {
+func (ps *PeerState) setHasVote(height uint64, round int, type_ byte, index int) {
 	logger := ps.logger.With("peerRound", ps.Round, "height", height, "round", round)
 	logger.Debug("setHasVote(LastCommit)", "lastCommit", ps.LastCommit, "index", index)
 
@@ -1178,11 +1178,11 @@ func DecodeMessage(bz []byte) (msgType byte, msg ConsensusMessage, err error) {
 // NewRoundStepMessage is sent for every step taken in the ConsensusState.
 // For every height/round/step transition
 type NewRoundStepMessage struct {
-	Height                int
+	Height                uint64
 	Round                 int
 	Step                  cstypes.RoundStepType
 	SecondsSinceStartTime int
-	LastCommitRound       int
+	LastCommitRound       uint64
 }
 
 // String returns a string representation.
@@ -1195,7 +1195,7 @@ func (m *NewRoundStepMessage) String() string {
 
 // CommitStepMessage is sent when a block is committed.
 type CommitStepMessage struct {
-	Height           int
+	Height           uint64
 	BlockPartsHeader types.PartSetHeader
 	BlockParts       *cmn.BitArray
 }
@@ -1221,7 +1221,7 @@ func (m *ProposalMessage) String() string {
 
 // ProposalPOLMessage is sent when a previous proposal is re-proposed.
 type ProposalPOLMessage struct {
-	Height           int
+	Height           uint64
 	ProposalPOLRound int
 	ProposalPOL      *cmn.BitArray
 }
@@ -1235,7 +1235,7 @@ func (m *ProposalPOLMessage) String() string {
 
 // BlockPartMessage is sent when gossipping a piece of the proposed block.
 type BlockPartMessage struct {
-	Height int
+	Height uint64
 	Round  int
 	Part   *types.Part
 }
@@ -1261,7 +1261,7 @@ func (m *VoteMessage) String() string {
 
 // HasVoteMessage is sent to indicate that a particular vote has been received.
 type HasVoteMessage struct {
-	Height int
+	Height uint64
 	Round  int
 	Type   byte
 	Index  int
@@ -1276,7 +1276,7 @@ func (m *HasVoteMessage) String() string {
 
 // VoteSetMaj23Message is sent to indicate that a given BlockID has seen +2/3 votes.
 type VoteSetMaj23Message struct {
-	Height  int
+	Height  uint64
 	Round   int
 	Type    byte
 	BlockID types.BlockID
@@ -1291,7 +1291,7 @@ func (m *VoteSetMaj23Message) String() string {
 
 // VoteSetBitsMessage is sent to communicate the bit-array of votes seen for the BlockID.
 type VoteSetBitsMessage struct {
-	Height  int
+	Height  uint64
 	Round   int
 	Type    byte
 	BlockID types.BlockID

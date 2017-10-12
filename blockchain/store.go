@@ -57,7 +57,7 @@ func (bs *BlockStore) GetReader(key []byte) io.Reader {
 	return bytes.NewReader(bytez)
 }
 
-func (bs *BlockStore) LoadBlock(height int) *types.Block {
+func (bs *BlockStore) LoadBlock(height uint64) *types.Block {
 	var n int
 	var err error
 	r := bs.GetReader(calcBlockMetaKey(height))
@@ -80,7 +80,7 @@ func (bs *BlockStore) LoadBlock(height int) *types.Block {
 	return block
 }
 
-func (bs *BlockStore) LoadBlockPart(height int, index int) *types.Part {
+func (bs *BlockStore) LoadBlockPart(height uint64, index int) *types.Part {
 	var n int
 	var err error
 	r := bs.GetReader(calcBlockPartKey(height, index))
@@ -94,7 +94,7 @@ func (bs *BlockStore) LoadBlockPart(height int, index int) *types.Part {
 	return part
 }
 
-func (bs *BlockStore) LoadBlockMeta(height int) *types.BlockMeta {
+func (bs *BlockStore) LoadBlockMeta(height uint64) *types.BlockMeta {
 	var n int
 	var err error
 	r := bs.GetReader(calcBlockMetaKey(height))
@@ -110,7 +110,7 @@ func (bs *BlockStore) LoadBlockMeta(height int) *types.BlockMeta {
 
 // The +2/3 and other Precommit-votes for block at `height`.
 // This Commit comes from block.LastCommit for `height+1`.
-func (bs *BlockStore) LoadBlockCommit(height int) *types.Commit {
+func (bs *BlockStore) LoadBlockCommit(height uint64) *types.Commit {
 	var n int
 	var err error
 	r := bs.GetReader(calcBlockCommitKey(height))
@@ -125,7 +125,7 @@ func (bs *BlockStore) LoadBlockCommit(height int) *types.Commit {
 }
 
 // NOTE: the Precommit-vote heights are for the block at `height`
-func (bs *BlockStore) LoadSeenCommit(height int) *types.Commit {
+func (bs *BlockStore) LoadSeenCommit(height uint64) *types.Commit {
 	var n int
 	var err error
 	r := bs.GetReader(calcSeenCommitKey(height))
@@ -184,7 +184,7 @@ func (bs *BlockStore) SaveBlock(block *types.Block, blockParts *types.PartSet, s
 	bs.db.SetSync(nil, nil)
 }
 
-func (bs *BlockStore) saveBlockPart(height int, index int, part *types.Part) {
+func (bs *BlockStore) saveBlockPart(height uint64, index int, part *types.Part) {
 	if height != bs.Height()+1 {
 		PanicSanity(Fmt("BlockStore can only save contiguous blocks. Wanted %v, got %v", bs.Height()+1, height))
 	}
@@ -194,19 +194,19 @@ func (bs *BlockStore) saveBlockPart(height int, index int, part *types.Part) {
 
 //-----------------------------------------------------------------------------
 
-func calcBlockMetaKey(height int) []byte {
+func calcBlockMetaKey(height uint64) []byte {
 	return []byte(fmt.Sprintf("H:%v", height))
 }
 
-func calcBlockPartKey(height int, partIndex int) []byte {
+func calcBlockPartKey(height uint64, partIndex int) []byte {
 	return []byte(fmt.Sprintf("P:%v:%v", height, partIndex))
 }
 
-func calcBlockCommitKey(height int) []byte {
+func calcBlockCommitKey(height uint64) []byte {
 	return []byte(fmt.Sprintf("C:%v", height))
 }
 
-func calcSeenCommitKey(height int) []byte {
+func calcSeenCommitKey(height uint64) []byte {
 	return []byte(fmt.Sprintf("SC:%v", height))
 }
 
@@ -215,7 +215,7 @@ func calcSeenCommitKey(height int) []byte {
 var blockStoreKey = []byte("blockStore")
 
 type BlockStoreStateJSON struct {
-	Height int
+	Height uint64
 }
 
 func (bsj BlockStoreStateJSON) Save(db dbm.DB) {
