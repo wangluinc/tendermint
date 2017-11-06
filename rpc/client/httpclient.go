@@ -218,33 +218,34 @@ func newWSEvents(remote, endpoint string) *WSEvents {
 // Start is the only way I could think the extend OnStart from
 // events.eventSwitch.  If only it wasn't private...
 // BaseService.Start -> eventSwitch.OnStart -> WSEvents.Start
-func (w *WSEvents) Start() (bool, error) {
-	st, err := w.EventSwitch.Start()
+func (w *WSEvents) Start() error {
+	err := w.EventSwitch.Start()
 	// if we did start, then OnStart here...
-	if st && err == nil {
+	if err == nil {
 		ws := rpcclient.NewWSClient(w.remote, w.endpoint, rpcclient.OnReconnect(func() {
 			w.redoSubscriptions()
 		}))
-		_, err = ws.Start()
-		if err == nil {
+		err1 := ws.Start()
+		if err1 == nil {
 			w.ws = ws
 			go w.eventListener()
 		}
+		return err1
 	}
-	return st, errors.Wrap(err, "StartWSEvent")
+	return err
 }
 
 // Stop wraps the BaseService/eventSwitch actions as Start does
-func (w *WSEvents) Stop() bool {
-	stop := w.EventSwitch.Stop()
-	if stop {
+func (w *WSEvents) Stop() error {
+	err := w.EventSwitch.Stop()
+	if err == nil {
 		// send a message to quit to stop the eventListener
 		w.quit <- true
 		<-w.done
 		w.ws.Stop()
 		w.ws = nil
 	}
-	return stop
+	return err
 }
 
 /** TODO: more intelligent subscriptions! **/

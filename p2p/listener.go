@@ -16,7 +16,7 @@ type Listener interface {
 	InternalAddress() *NetAddress
 	ExternalAddress() *NetAddress
 	String() string
-	Stop() bool
+	Stop() error
 }
 
 // Implements Listener

@@ -79,7 +79,7 @@ func (wal *WAL) OnStart() error {
 	} else if size == 0 {
 		wal.Save(EndHeightMessage{0})
 	}
-	_, err = wal.group.Start()
+	err = wal.group.Start()
 	return err
 }
 

@@ -287,7 +287,7 @@ func (cs *ConsensusState) OpenWAL(walFile string) (err error) {
 		return err
 	}
 	wal.SetLogger(cs.Logger.With("wal", walFile))
-	if _, err := wal.Start(); err != nil {
+	if err := wal.Start(); err != nil {
 		return err
 	}
 	cs.wal = wal

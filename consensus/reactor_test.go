@@ -31,7 +31,7 @@ func startConsensusNet(t *testing.T, css []*ConsensusState, N int, subscribeEven
 
 		eventSwitch := events.NewEventSwitch()
 		eventSwitch.SetLogger(logger.With("module", "events", "validator", i))
-		_, err := eventSwitch.Start()
+		err := eventSwitch.Start()
 		if err != nil {
 			t.Fatalf("Failed to start switch: %v", err)
 		}

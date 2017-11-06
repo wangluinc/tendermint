@@ -162,7 +162,7 @@ func NewNode(config *cfg.Config,
 	handshaker.SetLogger(consensusLogger)
 	proxyApp := proxy.NewAppConns(clientCreator, handshaker)
 	proxyApp.SetLogger(logger.With("module", "proxy"))
-	if _, err := proxyApp.Start(); err != nil {
+	if err := proxyApp.Start(); err != nil {
 		return nil, fmt.Errorf("Error starting proxy app connections: %v", err)
 	}
 
@@ -190,7 +190,7 @@ func NewNode(config *cfg.Config,
 	// Make event switch
 	eventSwitch := types.NewEventSwitch()
 	eventSwitch.SetLogger(logger.With("module", "types"))
-	if _, err := eventSwitch.Start(); err != nil {
+	if err := eventSwitch.Start(); err != nil {
 		return nil, fmt.Errorf("Failed to start switch: %v", err)
 	}
 
@@ -335,7 +335,7 @@ func (n *Node) OnStart() error {
 	// Start the switch
 	n.sw.SetNodeInfo(n.makeNodeInfo())
 	n.sw.SetNodePrivKey(n.privKey)
-	_, err := n.sw.Start()
+	err := n.sw.Start()
 	if err != nil {
 		return err
 	}

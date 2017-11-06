@@ -177,7 +177,7 @@ func (sw *Switch) OnStart() error {
 	sw.BaseService.OnStart()
 	// Start reactors
 	for _, reactor := range sw.reactors {
-		_, err := reactor.Start()
+		err := reactor.Start()
 		if err != nil {
 			return err
 		}
@@ -539,7 +539,7 @@ func Connect2Switches(switches []*Switch, i, j int) {
 // It returns the first encountered error.
 func StartSwitches(switches []*Switch) error {
 	for _, s := range switches {
-		_, err := s.Start() // start switch and reactors
+		err := s.Start() // start switch and reactors
 		if err != nil {
 			return err
 		}

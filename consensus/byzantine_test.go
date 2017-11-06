@@ -67,7 +67,7 @@ func TestByzantine(t *testing.T) {
 
 		eventSwitch := events.NewEventSwitch()
 		eventSwitch.SetLogger(eventLogger.With("validator", i))
-		_, err := eventSwitch.Start()
+		err := eventSwitch.Start()
 		if err != nil {
 			t.Fatalf("Failed to start switch: %v", err)
 		}

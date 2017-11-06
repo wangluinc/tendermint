@@ -60,7 +60,7 @@ func (conR *ConsensusReactor) OnStart() error {
 	conR.registerEventCallbacks()
 
 	if !conR.FastSync() {
-		_, err := conR.conS.Start()
+		err := conR.conS.Start()
 		if err != nil {
 			return err
 		}
