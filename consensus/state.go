@@ -1230,10 +1230,6 @@ func (cs *ConsensusState) finalizeCommit(height int) {
 
 	fail.Fail() // XXX
 
-	// TODO: remove included evidence
-	// and persist remaining evidence
-	// ... is this the right spot? need to ensure we never lose evidence
-
 	// NewHeightStep!
 	cs.updateToState(stateCopy)
 
@@ -1326,7 +1322,7 @@ func (cs *ConsensusState) tryAddVote(vote *types.Vote, peerKey string) error {
 	_, err := cs.addVote(vote, peerKey)
 	if err != nil {
 		// If the vote height is off, we'll just ignore it,
-		// But if it's a conflicting sig, broadcast evidence tx for slashing.
+		// But if it's a conflicting sig, add it to the cs.evpool.
 		// If it's otherwise invalid, punish peer.
 		if err == ErrVoteHeightMismatch {
 			return err
