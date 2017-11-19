@@ -413,6 +413,11 @@ func (c *ConsensusConfig) SetWalFile(walFile string) {
 }
 
 //-----------------------------------------------------------------------------
+// EvidenceConfig
+
+type EvidenceConfig struct{}
+
+//-----------------------------------------------------------------------------
 // Utils
 
 // helper function to make config creation independent of root dir

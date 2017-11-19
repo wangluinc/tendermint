@@ -171,6 +171,7 @@ func (s *State) LoadABCIResponses() *ABCIResponses {
 }
 
 // LoadValidators loads the ValidatorSet for a given height.
+// Returns ErrNoValSetForHeight if the validator set can't be found for this height.
 func (s *State) LoadValidators(height int) (*types.ValidatorSet, error) {
 	valInfo := s.loadValidators(height)
 	if valInfo == nil {
@@ -277,6 +278,36 @@ func (s *State) setBlockAndValidators(height int, blockID types.BlockID, blockTi
 // GetValidators returns the last and current validator sets.
 func (s *State) GetValidators() (last *types.ValidatorSet, current *types.ValidatorSet) {
 	return s.LastValidators, s.Validators
+}
+
+// VerifyEvidence verifies the evidence fully by checking it is internally
+// consistent and corresponds to an existing or previous validator.
+// It returns the priority of this evidence, or an error.
+// NOTE: return error may be ErrLoadValidators, in which case the validator set
+// for the evidence height could not be loaded.
+func (s *State) VerifyEvidence(evidence types.Evidence) (priority int, err error) {
+	if err := evidence.Verify(s.ChainID); err != nil {
+		return priority, err
+	}
+
+	// The address must have been an active validator at the height
+	ev := evidence
+	height, addr, idx := ev.Height(), ev.Address(), ev.Index()
+	valset, err := s.LoadValidators(height)
+	if err != nil {
+		// XXX/TODO: what do we do if we can't load the valset?
+		// eg. if we have pruned the state or height is too high?
+		return priority, err
+	}
+	valIdx, val := valset.GetByAddress(addr)
+	if val == nil {
+		return priority, fmt.Errorf("Address %X was not a validator at height %d", addr, height)
+	} else if idx != valIdx {
+		return priority, fmt.Errorf("Address %X was validator %d at height %d, not %d", addr, valIdx, height, idx)
+	}
+
+	priority = int(val.VotingPower)
+	return priority, nil
 }
 
 //------------------------------------------------------------------------
