@@ -37,7 +37,9 @@ func TestApplyBlock(t *testing.T) {
 	// make block
 	block := makeBlock(1, state)
 
-	err = state.ApplyBlock(types.NopEventBus{}, proxyApp.Consensus(), block, block.MakePartSet(testPartSize).Header(), types.MockMempool{})
+	err = state.ApplyBlock(types.NopEventBus{}, proxyApp.Consensus(),
+		block, block.MakePartSet(testPartSize).Header(),
+		types.MockMempool{}, types.MockEvidencePool{})
 
 	require.Nil(t, err)
 	assert.Equal(t, nTxsPerBlock, indexer.Indexed) // test indexing works
