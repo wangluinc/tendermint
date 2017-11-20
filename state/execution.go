@@ -206,7 +206,6 @@ func (s *State) validateBlock(block *types.Block) error {
 		if _, err := s.VerifyEvidence(ev); err != nil {
 			return types.NewEvidenceInvalidErr(ev, err)
 		}
-		// TODO: mark evidence as committed
 	}
 
 	return nil
