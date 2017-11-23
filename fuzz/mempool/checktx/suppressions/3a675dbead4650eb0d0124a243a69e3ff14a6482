@@ -1,0 +1,7 @@
+panic: Panicked on a Sanity Check: Error opening Mempool wal file: open data/mempool.wal/wal: too many open files
+github.com/tendermint/tendermint/vendor/github.com/tendermint/tmlibs/common.PanicSanity
+github.com/tendermint/tendermint/mempool.(*Mempool).initWAL
+github.com/tendermint/tendermint/mempool.NewMempool
+github.com/tendermint/tendermint/fuzz/mempool/checktx.Fuzz
+go-fuzz-dep.Main
+main.main
