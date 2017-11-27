@@ -7,6 +7,8 @@ import (
 	"github.com/tendermint/tendermint/types"
 )
 
+var _ txindex.TxIndexer = (*TxIndex)(nil)
+
 // TxIndex acts as a /dev/null.
 type TxIndex struct{}
 
@@ -16,11 +18,15 @@ func (txi *TxIndex) Get(hash []byte) (*types.TxResult, error) {
 }
 
 // AddBatch is a noop and always returns nil.
-func (txi *TxIndex) AddBatch(batch *txindex.Batch) error {
+func (txi *TxIndex) AddBatch(batch *txindex.Batch, tags []string) error {
 	return nil
 }
 
 // Index is a noop and always returns nil.
-func (txi *TxIndex) Index(result *types.TxResult) error {
+func (txi *TxIndex) Index(result *types.TxResult, tags []string) error {
 	return nil
+}
+
+func (txi *TxIndex) Search(query *pubsub.Query) ([]*types.TxResult, error) {
+	return []*types.TxResult{}, nil
 }
