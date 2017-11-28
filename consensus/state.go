@@ -696,10 +696,11 @@ func (cs *ConsensusState) needProofBlock(height int) bool {
 		return true
 	}
 
-	lastBlockMeta := cs.blockStore.LoadBlockMeta(height - 1)
-	if !bytes.Equal(cs.state.AppHash, lastBlockMeta.Header.AppHash) {
-		return true
+	txs := cs.mempool.Reap(cs.config.MaxBlockSizeTxs)
+	if len(txs) > 0 {
+		return true;
 	}
+
 	return false
 }
 
